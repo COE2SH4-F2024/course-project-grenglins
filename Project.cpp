@@ -3,7 +3,7 @@
 #include "objPos.h"
 
 using namespace std;
-
+//sussy wussy 
 #define DELAY_CONST 100000
 
 bool exitFlag;
