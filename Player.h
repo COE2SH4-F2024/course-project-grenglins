@@ -16,7 +16,7 @@ class Player
     
     public:
 
-        enum Dir {UP, DOWN, LEFT, RIGHT,STOP};
+        enum Dir {UP, DOWN, LEFT, RIGHT, STOP};
 
         Player(GameMechs* thisGMRef);
         ~Player();
@@ -24,6 +24,9 @@ class Player
         objPos getPlayerPos() const; // Upgrade this in iteration 3.       
         void updatePlayerDir();
         void movePlayer();
+        //void updateXPos(int newX);
+        //void updateYPos(int newY);
+        void printDir();
 
         // More methods to be added here
 

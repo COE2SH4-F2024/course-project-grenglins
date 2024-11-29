@@ -1,15 +1,18 @@
 #include <iostream>
 #include "MacUILib.h"
 #include "objPos.h"
+#include "GameMechs.h"
 #include "Player.h"
 
+
 using namespace std;
-//sussy wussy 
+ 
 #define DELAY_CONST 100000
 
 Player *myPlayer;
 
-bool exitFlag;
+GameMechs *myGM;
+
 
 void Initialize(void);
 void GetInput(void);
@@ -25,7 +28,7 @@ int main(void)
 
     Initialize();
 
-    while(exitFlag == false)  
+    while(myGM->getExitFlagStatus() == false)  
     {
         GetInput();
         RunLogic();
@@ -43,20 +46,41 @@ void Initialize(void)
     MacUILib_init();
     MacUILib_clearScreen();
 
-    myPlayer = new Player(nullptr);
+    myGM = new GameMechs(); //initialize player
+    myPlayer = new Player(myGM);
 
-    exitFlag = false;
 
 }
 
 void GetInput(void)
 {
-   
+   char input = myGM->getInput();
+   //action 
+    if(input == ' ')
+    {
+        myGM->setExitTrue();
+    }
+
+   //debug
+   if(input == 'z')
+    {
+        myGM->incrementScore();
+    }
+    else if (input == 'x')
+    {
+        myGM->setLoseFlag();
+        myGM->setExitTrue();
+
+    }
+
 }
 
 void RunLogic(void)
 {
+    myPlayer -> updatePlayerDir(); //update direction
+    myPlayer -> movePlayer(); //move direction
     
+    myGM->clearInput();
 }
 
 void DrawScreen(void)
@@ -65,18 +89,17 @@ void DrawScreen(void)
     //implement copy assignment operator to make this work
     //ok buddy
     objPos playerPos = myPlayer -> getPlayerPos();
-    MacUILib_printf("Player[x,y] = [%d,%d], %c\n", 
-    playerPos.pos->x, playerPos.pos->y, playerPos.symbol);
+    MacUILib_printf("Player[x,y] = [%d,%d], %c\n",playerPos.pos->x, playerPos.pos->y, playerPos.symbol);
 
-    for(int i = 0; i < 10; i++)
+    for(int i = 0; i < myGM->getBoardSizeY(); i++)
     {
-        for(int j = 0; j < 20; j++)
+        for(int j = 0; j < myGM->getBoardSizeX(); j++)
         {
-            if(i == 0 || i == 9 || j == 0 || j == 19 )
+            if(i == 0 || i == (myGM->getBoardSizeY() - 1) || j == 0 || j == (myGM->getBoardSizeX() - 1))
             {
                 MacUILib_printf("#");
             }
-            else if ((i == playerPos.pos->x) && (j == playerPos.pos->y)){
+            else if ((i == playerPos.pos->y) && (j == playerPos.pos->x)){
                 MacUILib_printf("%c", playerPos.symbol);
             }
             else
@@ -86,6 +109,15 @@ void DrawScreen(void)
         }
        MacUILib_printf("\n");
 
+    }
+
+    //Debugging 
+    MacUILib_printf("The score is: %d", myGM->getScore());
+    MacUILib_printf("\n");
+    myPlayer -> printDir();
+    if(myGM->getLoseFlagStatus() == true)
+    {
+        MacUILib_printf("You lose, L bozo");
     }
 
 }
@@ -99,6 +131,9 @@ void LoopDelay(void)
 void CleanUp(void)
 {
     MacUILib_clearScreen();    
+
+    delete myGM;
+    
     delete myPlayer;
 
     MacUILib_uninit();
