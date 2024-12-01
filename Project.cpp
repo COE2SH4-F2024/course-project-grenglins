@@ -3,6 +3,7 @@
 #include "objPos.h"
 #include "GameMechs.h"
 #include "Player.h"
+#include "Food.h"
 
 
 using namespace std;
@@ -12,6 +13,8 @@ using namespace std;
 Player *myPlayer;
 
 GameMechs *myGM;
+
+Food *myFood;
 
 
 void Initialize(void);
@@ -25,6 +28,7 @@ void CleanUp(void);
 
 int main(void)
 {
+    srand(time(NULL));
 
     Initialize();
 
@@ -48,20 +52,18 @@ void Initialize(void)
 
     myGM = new GameMechs(); //initialize player
     myPlayer = new Player(myGM);
+    myFood = new Food();
 
+    myFood->generateFood(myPlayer->getPlayerPos());
 
 }
 
 void GetInput(void)
 {
-   char input = myGM->getInput();
-   //action 
-    if(input == ' ')
-    {
-        myGM->setExitTrue();
-    }
+   myGM->collectAsyncInput();
 
    //debug
+   char input = myGM->getInput();
    if(input == 'z')
     {
         myGM->incrementScore();
@@ -88,19 +90,29 @@ void DrawScreen(void)
     MacUILib_clearScreen();   
     //implement copy assignment operator to make this work
     //ok buddy
+
+    objPos foodPos = myFood->getFoodPos();
     objPos playerPos = myPlayer -> getPlayerPos();
     MacUILib_printf("Player[x,y] = [%d,%d], %c\n",playerPos.pos->x, playerPos.pos->y, playerPos.symbol);
+    MacUILib_printf("Food[x,y] = [%d,%d], %c\n",foodPos.pos->x, foodPos.pos->y, foodPos.symbol);
 
-    for(int i = 0; i < myGM->getBoardSizeY(); i++)
+    int boardX = myGM->getBoardSizeX();
+    int boardY = myGM->getBoardSizeY();
+
+    for(int i = 0; i < boardY; i++)
     {
-        for(int j = 0; j < myGM->getBoardSizeX(); j++)
+        for(int j = 0; j < boardX; j++)
         {
-            if(i == 0 || i == (myGM->getBoardSizeY() - 1) || j == 0 || j == (myGM->getBoardSizeX() - 1))
+            if(i == 0 || i == (boardY - 1) || j == 0 || j == (boardX - 1))
             {
                 MacUILib_printf("#");
             }
             else if ((i == playerPos.pos->y) && (j == playerPos.pos->x)){
                 MacUILib_printf("%c", playerPos.symbol);
+            }
+            else if(j == foodPos.pos->x && i == foodPos.pos->y)
+            {
+                MacUILib_printf("%c", foodPos.symbol);
             }
             else
             {
@@ -135,6 +147,8 @@ void CleanUp(void)
     delete myGM;
     
     delete myPlayer;
+
+    delete myFood;
 
     MacUILib_uninit();
 }
