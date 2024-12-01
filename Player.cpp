@@ -79,7 +79,7 @@ void Player::movePlayer()
     {
         case UP:
             if (playerPos.pos->y == 1){
-                playerPos.pos->y = ySize - 1;
+                playerPos.pos->y = ySize - 2;
             }
             else {
                 playerPos.pos->y -= 1;
@@ -88,7 +88,7 @@ void Player::movePlayer()
             break;
 
         case DOWN:
-            if (playerPos.pos->y == ySize - 1){
+            if (playerPos.pos->y == ySize - 2){
                 playerPos.pos->y = 1;
             }
             else {
@@ -99,7 +99,7 @@ void Player::movePlayer()
 
         case LEFT:
             if (playerPos.pos->x == 1){
-                playerPos.pos->x = xSize - 1;
+                playerPos.pos->x = xSize - 2;
             }
             else {
                 playerPos.pos->x -= 1;
@@ -108,7 +108,7 @@ void Player::movePlayer()
             break;
 
         case RIGHT:
-            if (playerPos.pos->x == xSize - 1){
+            if (playerPos.pos->x == xSize - 2){
                 playerPos.pos->x = 1;
             }
             else {
