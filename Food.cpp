@@ -6,19 +6,22 @@
 
 Food::Food()
 {
-    objPos food;
-    food.setObjPos(-10,-10,'o');
+    foodBucket = new objPosArrayList();
 }
 
 Food:: ~Food()
 {
-
+    delete foodBucket;
 }
  
 void Food::generateFood(objPosArrayList* blockOff)
 {
     bool isValid;
     GameMechs gameMechs;
+    objPos food;
+
+    foodBucket->removeTail();
+    foodBucket->removeTail();
 
    do {
         isValid = true;
@@ -34,11 +37,30 @@ void Food::generateFood(objPosArrayList* blockOff)
                 isValid = false;
             }
         }
+
     } while (!isValid);
-    
+
+    foodBucket->insertHead(food);
+
+    do {
+        isValid = true;
+
+        int xCoord = (rand() % (gameMechs.getBoardSizeX() - 2)) + 1;
+        int yCoord = (rand() % (gameMechs.getBoardSizeY() - 2)) + 1;
+
+        food.setObjPos(xCoord, yCoord, '*'); // Update the food's position
+
+        objPos headElement = foodBucket->getHeadElement();
+        if (food.isPosEqual(&headElement)) {
+            isValid = false;
+        }
+
+    } while (!isValid);
+
+    foodBucket->insertTail(food);
 }
 
-objPos Food::getFoodPos() const
+objPosArrayList* Food::getFoodPos() const
 {
-    return food;
+    return foodBucket;
 }

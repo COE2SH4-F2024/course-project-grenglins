@@ -82,6 +82,7 @@ void Player::movePlayer()
 
     int xSize = mainGameMechsRef -> getBoardSizeX(); //store board dimensions
     int ySize = mainGameMechsRef -> getBoardSizeY(); 
+    bool collisionFood = false;
 
     /*
     create a temp objPos to calc the new head pos
@@ -156,15 +157,36 @@ void Player::movePlayer()
         mainGameMechsRef -> setExitTrue();
    }
 
-   objPos food = mainFoodRef -> getFoodPos(); //temporary food position
+   objPosArrayList* food = mainFoodRef -> getFoodPos(); //temporary food position
 
-   if (tempHead.isPosEqual(&food)){ //if collision don't remove tail
-        mainGameMechsRef -> incrementScore();
+   for (int i= 0; i< food ->getSize(); i++){
+
+        objPos tempFood = food -> getElement(i);
+        MacUILib_printf("Food[x,y] = [%d,%d], %c\n",tempFood.pos->x, tempFood.pos->y, tempFood.symbol);
+
+       if (tempHead.isPosEqual(&tempFood)){ //if collision don't remove tail
+            collisionFood = true;
+            if (food ->getElement(i).getSymbol() == '*'){
+                mainGameMechsRef -> incrementScore();
+                mainGameMechsRef -> incrementScore();
+                mainGameMechsRef -> incrementScore();
+                mainGameMechsRef -> incrementScore();
+                
+            }
+
+            else{
+                mainGameMechsRef -> incrementScore();
+            }
+        }
+   }
+
+
+    if (collisionFood){
         mainFoodRef -> generateFood(playerPosList);
-   }
-   else {
+    }
+    else if (!collisionFood){
         playerPosList -> removeTail(); //if no collision remove tail
-   }
+    }
 
 }
 

@@ -91,14 +91,15 @@ void DrawScreen(void)
     //implement copy assignment operator to make this work
     //ok buddy
 
-    objPos foodPos = myFood->getFoodPos();
-
+    objPosArrayList* foodPos = myFood->getFoodPos();
     objPosArrayList* playerPos = myPlayer -> getPlayerPos();
+    
     int playerSize = playerPos->getSize();
 
     //MacUILib_printf("Player[x,y] = [%d,%d], %c\n",playerPos.pos->x, playerPos.pos->y, playerPos.symbol);
-    MacUILib_printf("Food[x,y] = [%d,%d], %c\n",foodPos.pos->x, foodPos.pos->y, foodPos.symbol);
-
+    MacUILib_printf("Food[x,y] = [%d,%d], %c\n",foodPos->getHeadElement().pos->x, foodPos->getHeadElement().pos->y, foodPos->getHeadElement().symbol);
+    MacUILib_printf("Food[x,y] = [%d,%d], %c\n",foodPos->getTailElement().pos->x, foodPos->getTailElement().pos->y, foodPos->getTailElement().symbol);
+    
     int boardX = myGM->getBoardSizeX();
     int boardY = myGM->getBoardSizeY();
 
@@ -121,14 +122,6 @@ void DrawScreen(void)
                     printed = true;
                 }
 
-                // check if the current segment (x,y) pos matches the (j,i) coordinate
-                //if yes print the symbol
-
-                //watch out! we need to skip the if else block below if we have 
-                //printed something
-
-                //bool or continue, at the end of the for loop do something to 
-                //determine whether to continue with the if else or move on
             }
 
             if (!printed){
@@ -136,9 +129,13 @@ void DrawScreen(void)
                 {
                     MacUILib_printf("#");
                 }
-                else if(j == foodPos.pos->x && i == foodPos.pos->y)
+                else if(j == foodPos->getHeadElement().pos->x && i == foodPos->getHeadElement().pos->y)
                 {
-                    MacUILib_printf("%c", foodPos.symbol);
+                    MacUILib_printf("%c", foodPos->getHeadElement().symbol);
+                }
+                else if(j == foodPos->getTailElement().pos->x && i == foodPos->getTailElement().pos->y)
+                {
+                    MacUILib_printf("%c", foodPos->getTailElement().symbol);
                 }
                 else
                 {
@@ -153,7 +150,7 @@ void DrawScreen(void)
     //Debugging 
     MacUILib_printf("The score is: %d", myGM->getScore());
     MacUILib_printf("\n");
-    //myPlayer -> printDir();
+    
     if(myGM->getLoseFlagStatus() == true && myGM -> getExitFlagStatus() == true)
     {
         MacUILib_printf("You lose, L bozo");
