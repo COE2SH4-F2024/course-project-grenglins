@@ -51,10 +51,10 @@ void Initialize(void)
     MacUILib_clearScreen();
 
     myGM = new GameMechs(); //initialize player
-    myPlayer = new Player(myGM);
     myFood = new Food();
+    myPlayer = new Player(myGM, myFood);
 
-    myFood->generateFood(myPlayer->getPlayerPos());
+    myFood->generateFood(myPlayer -> getPlayerPos());
 
 }
 
@@ -92,31 +92,58 @@ void DrawScreen(void)
     //ok buddy
 
     objPos foodPos = myFood->getFoodPos();
-    objPos playerPos = myPlayer -> getPlayerPos();
-    MacUILib_printf("Player[x,y] = [%d,%d], %c\n",playerPos.pos->x, playerPos.pos->y, playerPos.symbol);
+
+    objPosArrayList* playerPos = myPlayer -> getPlayerPos();
+    int playerSize = playerPos->getSize();
+
+    //MacUILib_printf("Player[x,y] = [%d,%d], %c\n",playerPos.pos->x, playerPos.pos->y, playerPos.symbol);
     MacUILib_printf("Food[x,y] = [%d,%d], %c\n",foodPos.pos->x, foodPos.pos->y, foodPos.symbol);
 
     int boardX = myGM->getBoardSizeX();
     int boardY = myGM->getBoardSizeY();
 
+    bool printed = false;
+
     for(int i = 0; i < boardY; i++)
     {
         for(int j = 0; j < boardX; j++)
         {
-            if(i == 0 || i == (boardY - 1) || j == 0 || j == (boardX - 1))
-            {
-                MacUILib_printf("#");
+            printed = false;
+            /*
+            we now need to iterate through the playerPosArrayList to print
+            all segments out
+            */
+           for (int k = 0; k<playerSize; k++){
+                objPos thisSeg = playerPos -> getElement(k);
+
+                if (((thisSeg.pos -> x) == j) && ((thisSeg.pos -> y) == i)){
+                    MacUILib_printf("%c", thisSeg.symbol);
+                    printed = true;
+                }
+
+                // check if the current segment (x,y) pos matches the (j,i) coordinate
+                //if yes print the symbol
+
+                //watch out! we need to skip the if else block below if we have 
+                //printed something
+
+                //bool or continue, at the end of the for loop do something to 
+                //determine whether to continue with the if else or move on
             }
-            else if ((i == playerPos.pos->y) && (j == playerPos.pos->x)){
-                MacUILib_printf("%c", playerPos.symbol);
-            }
-            else if(j == foodPos.pos->x && i == foodPos.pos->y)
-            {
-                MacUILib_printf("%c", foodPos.symbol);
-            }
-            else
-            {
-                MacUILib_printf(" ");
+
+            if (!printed){
+                if(i == 0 || i == (boardY - 1) || j == 0 || j == (boardX - 1))
+                {
+                    MacUILib_printf("#");
+                }
+                else if(j == foodPos.pos->x && i == foodPos.pos->y)
+                {
+                    MacUILib_printf("%c", foodPos.symbol);
+                }
+                else
+                {
+                    MacUILib_printf(" ");
+                }
             }
         }
        MacUILib_printf("\n");
@@ -126,10 +153,15 @@ void DrawScreen(void)
     //Debugging 
     MacUILib_printf("The score is: %d", myGM->getScore());
     MacUILib_printf("\n");
-    myPlayer -> printDir();
-    if(myGM->getLoseFlagStatus() == true)
+    //myPlayer -> printDir();
+    if(myGM->getLoseFlagStatus() == true && myGM -> getExitFlagStatus() == true)
     {
         MacUILib_printf("You lose, L bozo");
+    }
+    else if (myGM -> getExitFlagStatus() == true)
+    {
+        MacUILib_printf("You exited the game, bozo");
+    
     }
 
 }
@@ -142,7 +174,7 @@ void LoopDelay(void)
 
 void CleanUp(void)
 {
-    MacUILib_clearScreen();    
+    //MacUILib_clearScreen();    
 
     delete myGM;
     

@@ -2,30 +2,38 @@
 #include <iostream>
 #include "MacUILib.h"
 #include "GameMechs.h"
+#include "Food.h"
 
-Player::Player(GameMechs* thisGMRef)
+Player::Player(GameMechs* thisGMRef, Food* foodRef)
 {
     mainGameMechsRef = thisGMRef;
+    mainFoodRef = foodRef;
+    
     myDir = UP;
+    playerPosList = new objPosArrayList();
 
     // more actions to be included
 
-    playerPos.pos->x = (mainGameMechsRef -> getBoardSizeX()) / 2; //initialize player position and character
-    playerPos.pos->y = (mainGameMechsRef -> getBoardSizeY()) / 2;
-    playerPos.symbol = '@';
+    objPos headPos(((mainGameMechsRef -> getBoardSizeX()) / 2), ((mainGameMechsRef -> getBoardSizeY()) / 2), '@');
+    playerPosList -> insertHead(headPos);
+
+    //playerPos.pos->x = (mainGameMechsRef -> getBoardSizeX()) / 2; //initialize player position and character
+    //playerPos.pos->y = (mainGameMechsRef -> getBoardSizeY()) / 2;
+    //playerPos.symbol = '@';
 }
 
 
 Player::~Player()
 {
     // delete any heap members here
+    delete playerPosList;
     
 }
 
-objPos Player::getPlayerPos() const
+objPosArrayList* Player::getPlayerPos() const
 {
     // return the reference to the playerPos arrray list
-    return playerPos;
+    return playerPosList;
 }
 
 void Player::updatePlayerDir()
@@ -75,53 +83,106 @@ void Player::movePlayer()
     int xSize = mainGameMechsRef -> getBoardSizeX(); //store board dimensions
     int ySize = mainGameMechsRef -> getBoardSizeY(); 
 
+    /*
+    create a temp objPos to calc the new head pos
+    hint - propbably should get the head element of the playerPosList
+    */
+
+    objPos tempHead = playerPosList -> getHeadElement();
+
     switch (myDir) //move direction
     {
+        /*
+        calc the new head pos using the temp objPos
+        */
         case UP:
-            if (playerPos.pos->y == 1){
-                playerPos.pos->y = ySize - 2;
+            if (tempHead.pos->y == 1){
+                tempHead.pos->y = ySize - 2;
             }
             else {
-                playerPos.pos->y -= 1;
+                tempHead.pos->y -= 1;
             }
             
             break;
 
         case DOWN:
-            if (playerPos.pos->y == ySize - 2){
-                playerPos.pos->y = 1;
+            if (tempHead.pos->y == ySize - 2){
+                tempHead.pos->y = 1;
             }
             else {
-                playerPos.pos->y += 1;
+                tempHead.pos->y += 1;
             }
             
             break;
 
         case LEFT:
-            if (playerPos.pos->x == 1){
-                playerPos.pos->x = xSize - 2;
+            if (tempHead.pos->x == 1){
+                tempHead.pos->x = xSize - 2;
             }
             else {
-                playerPos.pos->x -= 1;
+                tempHead.pos->x -= 1;
             }
             
             break;
 
         case RIGHT:
-            if (playerPos.pos->x == xSize - 2){
-                playerPos.pos->x = 1;
+            if (tempHead.pos->x == xSize - 2){
+                tempHead.pos->x = 1;
             }
             else {
-                playerPos.pos->x += 1;
+                tempHead.pos->x += 1;
             }
             
             break;
     }
+
+    /*
+    insert temp objPos to head of the list
+
+    later - check if the new temp objPos overlaps the food pos (get it from game mech class)
+
+    use isposequal method from obj class
+
+    if overlap, food consumed, DO NOT REMOVE SNAKE TAIL
+    and take the respective actions to increase the score
+
+    if no overlap, remove tail, complete movement
+    */
+
+   playerPosList -> insertHead(tempHead); //temporary head position
+
+   if (checkSelfCollision() == true){
+        mainGameMechsRef -> setLoseFlag();
+        mainGameMechsRef -> setExitTrue();
+   }
+
+   objPos food = mainFoodRef -> getFoodPos(); //temporary food position
+
+   if (tempHead.isPosEqual(&food)){ //if collision don't remove tail
+        mainGameMechsRef -> incrementScore();
+        mainFoodRef -> generateFood(playerPosList);
+   }
+   else {
+        playerPosList -> removeTail(); //if no collision remove tail
+   }
+
 }
 
 // More methods to be added
 
+bool checkFoodConsumption (){
 
-void Player:: printDir (){
-    cout << myDir << "\n";
+}
+
+void increasePlayerLength(){
+
+}
+
+bool Player::checkSelfCollision() {
+    for (int i=1; i< playerPosList->getSize() ; i++){
+        if (((playerPosList -> getHeadElement().pos->x) == (playerPosList -> getElement(i).pos->x)) && ((playerPosList -> getHeadElement().pos->y) == (playerPosList -> getElement(i).pos->y))){
+            return true;
+        }
+    }
+    return false;
 }
