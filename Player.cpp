@@ -1,42 +1,34 @@
-#include "Player.h"
+#include "Player.h" //include libraries
 #include <iostream>
 #include "MacUILib.h"
 #include "GameMechs.h"
 #include "Food.h"
 
-Player::Player(GameMechs* thisGMRef, Food* foodRef)
+Player::Player(GameMechs* thisGMRef, Food* foodRef) //default constructor
 {
-    mainGameMechsRef = thisGMRef;
-    mainFoodRef = foodRef;
+    mainGameMechsRef = thisGMRef; //game mechanics variable
+    mainFoodRef = foodRef; //food array variable
     
-    myDir = UP;
-    playerPosList = new objPosArrayList();
+    myDir = UP; //set myDir to up
+    playerPosList = new objPosArrayList(); //array to hold snake
 
-    // more actions to be included
+    objPos headPos(((mainGameMechsRef -> getBoardSizeX()) / 2), ((mainGameMechsRef -> getBoardSizeY()) / 2), '@'); //initialize head position
+    playerPosList -> insertHead(headPos); //add head position to array
 
-    objPos headPos(((mainGameMechsRef -> getBoardSizeX()) / 2), ((mainGameMechsRef -> getBoardSizeY()) / 2), '@');
-    playerPosList -> insertHead(headPos);
-
-    //playerPos.pos->x = (mainGameMechsRef -> getBoardSizeX()) / 2; //initialize player position and character
-    //playerPos.pos->y = (mainGameMechsRef -> getBoardSizeY()) / 2;
-    //playerPos.symbol = '@';
 }
 
 
-Player::~Player()
+Player::~Player() //delete heap members
 {
-    // delete any heap members here
-    delete playerPosList;
-    
+    delete playerPosList; //delete player positions
 }
 
-objPosArrayList* Player::getPlayerPos() const
+objPosArrayList* Player::getPlayerPos() const //return player array
 {
-    // return the reference to the playerPos arrray list
     return playerPosList;
 }
 
-void Player::updatePlayerDir()
+void Player::updatePlayerDir() //update myDir variable (player direction)
 {
     // PPA3 input processing logic  
     
@@ -76,114 +68,101 @@ void Player::updatePlayerDir()
     }       
 }
 
-void Player::movePlayer()
+void Player::movePlayer() //move player function
 {
     // PPA3 Finite State Machine logic
 
     int xSize = mainGameMechsRef -> getBoardSizeX(); //store board dimensions
     int ySize = mainGameMechsRef -> getBoardSizeY(); 
-    bool collisionFood = false;
 
-    /*
-    create a temp objPos to calc the new head pos
-    hint - propbably should get the head element of the playerPosList
-    */
+    bool collisionFood = false; //set collision with food to false
 
-    objPos tempHead = playerPosList -> getHeadElement();
+    objPos tempHead = playerPosList -> getHeadElement(); //temporarily store snake head
 
     switch (myDir) //move direction
     {
-        /*
-        calc the new head pos using the temp objPos
-        */
-        case UP:
-            if (tempHead.pos->y == 1){
-                tempHead.pos->y = ySize - 2;
+        case UP: //if going up
+            if (tempHead.pos->y == 1){  //if at edge of board
+                tempHead.pos->y = ySize - 2; //go to bottom of board
             }
             else {
-                tempHead.pos->y -= 1;
+                tempHead.pos->y -= 1; //otherwise decrement position by 1
             }
             
             break;
 
-        case DOWN:
-            if (tempHead.pos->y == ySize - 2){
-                tempHead.pos->y = 1;
+        case DOWN: //if going down
+            if (tempHead.pos->y == ySize - 2){ //if at edge of board
+                tempHead.pos->y = 1; //go to top of board
             }
             else {
-                tempHead.pos->y += 1;
+                tempHead.pos->y += 1; //increase position by 1
             }
             
             break;
 
-        case LEFT:
-            if (tempHead.pos->x == 1){
-                tempHead.pos->x = xSize - 2;
+        case LEFT: //if going left
+            if (tempHead.pos->x == 1){ //if at edge of board
+                tempHead.pos->x = xSize - 2; //go to left side of board
             }
             else {
-                tempHead.pos->x -= 1;
+                tempHead.pos->x -= 1; //otherwise decrement position by 1
             }
             
             break;
 
-        case RIGHT:
-            if (tempHead.pos->x == xSize - 2){
-                tempHead.pos->x = 1;
+        case RIGHT: //if going right
+            if (tempHead.pos->x == xSize - 2){ //if at edge of board
+                tempHead.pos->x = 1; //go to right side of board
             }
             else {
-                tempHead.pos->x += 1;
+                tempHead.pos->x += 1; //otherwise increment position by 1
             }
-            
+    
             break;
+
+        default: //default case
+                break;
     }
 
-    /*
-    insert temp objPos to head of the list
-
-    later - check if the new temp objPos overlaps the food pos (get it from game mech class)
-
-    use isposequal method from obj class
-
-    if overlap, food consumed, DO NOT REMOVE SNAKE TAIL
-    and take the respective actions to increase the score
-
-    if no overlap, remove tail, complete movement
-    */
 
    playerPosList -> insertHead(tempHead); //temporary head position
 
-   if (checkSelfCollision() == true){
-        mainGameMechsRef -> setLoseFlag();
-        mainGameMechsRef -> setExitTrue();
+   if (checkSelfCollision() == true){ //if snake collided with itself
+        mainGameMechsRef -> setLoseFlag(); //set lose flag to true
+        mainGameMechsRef -> setExitTrue(); //exit flag true
    }
 
    objPosArrayList* food = mainFoodRef -> getFoodPos(); //temporary food position
 
-   for (int i= 0; i< food ->getSize(); i++){
+   for (int i= 0; i< food ->getSize(); i++){ //iterate through all items in food array
 
-        objPos tempFood = food -> getElement(i);
-        MacUILib_printf("Food[x,y] = [%d,%d], %c\n",tempFood.pos->x, tempFood.pos->y, tempFood.symbol);
+        objPos tempFood = food -> getElement(i); //get current food element
 
-       if (tempHead.isPosEqual(&tempFood)){ //if collision don't remove tail
-            collisionFood = true;
-            if (food ->getElement(i).getSymbol() == '*'){
-                mainGameMechsRef -> incrementScore();
-                mainGameMechsRef -> incrementScore();
-                mainGameMechsRef -> incrementScore();
-                mainGameMechsRef -> incrementScore();
+       if (tempHead.isPosEqual(&tempFood)){ //if there was a collision
+
+            collisionFood = true; //set collision with food to true
+
+            if (food ->getElement(i).getSymbol() == '*'){ //if collided with special food
+
+                for (int x = 0; x < 4; x++){ 
+                    mainGameMechsRef -> incrementScore(); //increment score by 5
+                }
                 
             }
 
             else{
-                mainGameMechsRef -> incrementScore();
+                mainGameMechsRef -> incrementScore(); //if normal food increment score by 1
             }
+
         }
    }
 
 
-    if (collisionFood){
-        mainFoodRef -> generateFood(playerPosList);
+    if (collisionFood){ 
+        mainFoodRef -> generateFood(playerPosList); //if collided with food generate new food positions
     }
+
     else if (!collisionFood){
         playerPosList -> removeTail(); //if no collision remove tail
     }
@@ -192,19 +171,16 @@ void Player::movePlayer()
 
 // More methods to be added
 
-bool checkFoodConsumption (){
 
-}
+bool Player::checkSelfCollision() { //self collision function
 
-void increasePlayerLength(){
+    for (int i=1; i< playerPosList->getSize() ; i++){ //iterate through position in snake array
 
-}
-
-bool Player::checkSelfCollision() {
-    for (int i=1; i< playerPosList->getSize() ; i++){
         if (((playerPosList -> getHeadElement().pos->x) == (playerPosList -> getElement(i).pos->x)) && ((playerPosList -> getHeadElement().pos->y) == (playerPosList -> getElement(i).pos->y))){
-            return true;
+            return true; //if head element is equal to other position in array return true
         }
+
     }
-    return false;
+
+    return false; //if head element was not equal to another position in array return false
 }

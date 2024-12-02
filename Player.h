@@ -1,7 +1,7 @@
-#ifndef PLAYER_H
+#ifndef PLAYER_H //define player class
 #define PLAYER_H
 
-#include "GameMechs.h"
+#include "GameMechs.h" //include statements
 #include "objPos.h"
 #include "objPosArrayList.h"
 #include "Food.h"
@@ -15,31 +15,25 @@ class Player
     // You will include more data members and member functions to complete your design.
 
     
-    public:
+    public: //public members
 
-        enum Dir {UP, DOWN, LEFT, RIGHT, STOP};
+        enum Dir {UP, DOWN, LEFT, RIGHT, STOP}; //directions for player
 
-        Player(GameMechs* thisGMRef, Food* foodRef);
-        ~Player();
+        Player(GameMechs* thisGMRef, Food* foodRef); //construction
+        ~Player(); //delete heap memebers
 
         objPosArrayList* getPlayerPos() const; // Upgrade this in iteration 3.       
-        void updatePlayerDir();
-        void movePlayer();
-        void printDir();
-        bool checkFoodConsumption();
-        void increasePlayerLength();
-        bool checkSelfCollision();
+        void updatePlayerDir(); //update variable
+        void movePlayer(); //moveplayer
 
-        // More methods to be added here
+        bool checkSelfCollision(); //check self collision
 
-    private:
-        //objPos playerPos; // Upgrade this in iteration 3.  
+    private: //private members
 
-        objPosArrayList* playerPosList;     
-        enum Dir myDir;
+        objPosArrayList* playerPosList; //player array list
+        enum Dir myDir; //direction variable
 
-        // Need a reference to the Main Game Mechanisms
-        GameMechs* mainGameMechsRef;
+        GameMechs* mainGameMechsRef; //references to other classes
         Food* mainFoodRef;
 };
 

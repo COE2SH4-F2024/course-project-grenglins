@@ -1,23 +1,21 @@
-#include <iostream>
-#include "MacUILib.h"
+#include <iostream> //include io
+
+#include "MacUILib.h" //include libraries
 #include "objPos.h"
 #include "GameMechs.h"
 #include "Player.h"
 #include "Food.h"
 
-
-using namespace std;
+using namespace std; //saving namespace
  
-#define DELAY_CONST 100000
+#define DELAY_CONST 100000 //initialize delay constant
 
-Player *myPlayer;
-
+Player *myPlayer; //initialize variables
 GameMechs *myGM;
-
 Food *myFood;
 
 
-void Initialize(void);
+void Initialize(void); //declare functions
 void GetInput(void);
 void RunLogic(void);
 void DrawScreen(void);
@@ -26,55 +24,41 @@ void CleanUp(void);
 
 
 
-int main(void)
+int main(void) //main
 {
-    srand(time(NULL));
+    srand(time(NULL)); //time variation line
 
-    Initialize();
+    Initialize(); //call initialize
 
-    while(myGM->getExitFlagStatus() == false)  
+    while(myGM->getExitFlagStatus() == false)   //if not exit flag
     {
-        GetInput();
+        GetInput(); //run functions
         RunLogic();
         DrawScreen();
         LoopDelay();
     }
 
-    CleanUp();
+    CleanUp(); //call clean up
 
 }
 
 
-void Initialize(void)
+void Initialize(void) //initialize
 {
-    MacUILib_init();
-    MacUILib_clearScreen();
+    MacUILib_init(); 
+    MacUILib_clearScreen(); //clear screen
 
-    myGM = new GameMechs(); //initialize player
+    myGM = new GameMechs(); //initialize variables
     myFood = new Food();
     myPlayer = new Player(myGM, myFood);
 
-    myFood->generateFood(myPlayer -> getPlayerPos());
+    myFood->generateFood(myPlayer -> getPlayerPos()); //generate food items
 
 }
 
 void GetInput(void)
 {
-   myGM->collectAsyncInput();
-
-   //debug
-   char input = myGM->getInput();
-   if(input == 'z')
-    {
-        myGM->incrementScore();
-    }
-    else if (input == 'x')
-    {
-        myGM->setLoseFlag();
-        myGM->setExitTrue();
-
-    }
-
+   myGM->collectAsyncInput(); //read in
 }
 
 void RunLogic(void)
@@ -82,88 +66,89 @@ void RunLogic(void)
     myPlayer -> updatePlayerDir(); //update direction
     myPlayer -> movePlayer(); //move direction
     
-    myGM->clearInput();
+    myGM->clearInput(); //clear input
 }
 
 void DrawScreen(void)
 {
-    MacUILib_clearScreen();   
-    //implement copy assignment operator to make this work
-    //ok buddy
+    MacUILib_clearScreen();   //clear screen
 
-    objPosArrayList* foodPos = myFood->getFoodPos();
+    objPosArrayList* foodPos = myFood->getFoodPos(); //get food and player pos
     objPosArrayList* playerPos = myPlayer -> getPlayerPos();
     
-    int playerSize = playerPos->getSize();
-
-    //MacUILib_printf("Player[x,y] = [%d,%d], %c\n",playerPos.pos->x, playerPos.pos->y, playerPos.symbol);
-    MacUILib_printf("Food[x,y] = [%d,%d], %c\n",foodPos->getHeadElement().pos->x, foodPos->getHeadElement().pos->y, foodPos->getHeadElement().symbol);
-    MacUILib_printf("Food[x,y] = [%d,%d], %c\n",foodPos->getTailElement().pos->x, foodPos->getTailElement().pos->y, foodPos->getTailElement().symbol);
+    int playerSize = playerPos->getSize(); //get size of player and food arrays
+    int foodSize = foodPos ->getSize();
     
-    int boardX = myGM->getBoardSizeX();
+    int boardX = myGM->getBoardSizeX(); //collect board size
     int boardY = myGM->getBoardSizeY();
 
-    bool printed = false;
+    bool printed = false; //set boolean for printed to false
 
-    for(int i = 0; i < boardY; i++)
+    for(int i = 0; i < boardY; i++) //iterate through board
     {
         for(int j = 0; j < boardX; j++)
         {
-            printed = false;
-            /*
-            we now need to iterate through the playerPosArrayList to print
-            all segments out
-            */
-           for (int k = 0; k<playerSize; k++){
+            printed = false; //set printed to false
+
+           for (int k = 0; k<playerSize; k++){ //iterate through player list
+
                 objPos thisSeg = playerPos -> getElement(k);
 
-                if (((thisSeg.pos -> x) == j) && ((thisSeg.pos -> y) == i)){
-                    MacUILib_printf("%c", thisSeg.symbol);
-                    printed = true;
+                if (((thisSeg.pos -> x) == j) && ((thisSeg.pos -> y) == i)){ //if there is a player at pos
+                    MacUILib_printf("%c", thisSeg.symbol); //print
+                    printed = true; //set bool to true
+                    break;
                 }
 
             }
 
-            if (!printed){
-                if(i == 0 || i == (boardY - 1) || j == 0 || j == (boardX - 1))
-                {
-                    MacUILib_printf("#");
+            for (int k = 0; k< foodSize; k++){ //iterate through food list
+
+                objPos thisSeg = foodPos -> getElement(k);
+
+                if (((thisSeg.pos -> x) == j) && ((thisSeg.pos -> y) == i)){ //if there is a food at pos
+                    MacUILib_printf("%c", thisSeg.symbol); //print food
+                    printed = true; //set bool to true
                 }
-                else if(j == foodPos->getHeadElement().pos->x && i == foodPos->getHeadElement().pos->y)
+
+            }
+
+            if (!printed){ //if nothing has been printed
+
+                if(i == 0 || i == (boardY - 1) || j == 0 || j == (boardX - 1)) //if edge of board
                 {
-                    MacUILib_printf("%c", foodPos->getHeadElement().symbol);
+                    MacUILib_printf("#"); //print border character
                 }
-                else if(j == foodPos->getTailElement().pos->x && i == foodPos->getTailElement().pos->y)
-                {
-                    MacUILib_printf("%c", foodPos->getTailElement().symbol);
-                }
+
                 else
                 {
-                    MacUILib_printf(" ");
+                    MacUILib_printf(" "); //print whitespace
                 }
+
             }
+
         }
        MacUILib_printf("\n");
 
     }
 
-    //Debugging 
-    MacUILib_printf("The score is: %d", myGM->getScore());
+    MacUILib_printf("The score is: %d", myGM->getScore()); //print score
     MacUILib_printf("\n");
     
-    if(myGM->getLoseFlagStatus() == true && myGM -> getExitFlagStatus() == true)
+    if(myGM->getLoseFlagStatus() == true && myGM -> getExitFlagStatus() == true) //if player lost
     {
-        MacUILib_printf("You lose, L bozo");
+        MacUILib_printf("You lose, L bozo"); //lose message
     }
-    else if (myGM -> getExitFlagStatus() == true)
+
+    else if (myGM -> getExitFlagStatus() == true) //if player exited game
     {
-        MacUILib_printf("You exited the game, bozo");
+        MacUILib_printf("You exited the game, bozo"); //exit message
     
     }
 
 }
 
-void LoopDelay(void)
+void LoopDelay(void) 
 {
     MacUILib_Delay(DELAY_CONST); // 0.1s delay
 }
@@ -173,10 +158,8 @@ void CleanUp(void)
 {
     //MacUILib_clearScreen();    
 
-    delete myGM;
-    
+    delete myGM; //delete heap members
     delete myPlayer;
-
     delete myFood;
 
     MacUILib_uninit();

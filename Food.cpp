@@ -22,42 +22,87 @@ void Food::generateFood(objPosArrayList* blockOff)
 
     foodBucket->removeTail();
     foodBucket->removeTail();
+    foodBucket->removeTail();
 
-   do {
-        isValid = true;
+//    do {
+//         isValid = true;
 
-        int xCoord = (rand() % (gameMechs.getBoardSizeX() - 2)) + 1;
-        int yCoord = (rand() % (gameMechs.getBoardSizeY() - 2)) + 1;
+//         int xCoord = (rand() % (gameMechs.getBoardSizeX() - 2)) + 1;
+//         int yCoord = (rand() % (gameMechs.getBoardSizeY() - 2)) + 1;
 
-        food.setObjPos(xCoord, yCoord, 'o'); // Update the food's position
+//         food.setObjPos(xCoord, yCoord, 'o'); // Update the food's position
 
-        for (int i = 0; i< blockOff -> getSize(); i++){
-            objPos currElement = blockOff -> getElement(i);
-            if (food.isPosEqual(&currElement)) {
-                isValid = false;
+//         for (int i = 0; i< blockOff -> getSize(); i++){
+//             objPos currElement = blockOff -> getElement(i);
+//             if (food.isPosEqual(&currElement)) {
+//                 isValid = false;
+//             }
+//         }
+
+//     } while (!isValid);
+
+//     foodBucket->insertHead(food);
+
+//     do {
+//         isValid = true;
+
+//         int xCoord = (rand() % (gameMechs.getBoardSizeX() - 2)) + 1;
+//         int yCoord = (rand() % (gameMechs.getBoardSizeY() - 2)) + 1;
+
+//         food.setObjPos(xCoord, yCoord, '*'); // Update the food's position
+
+//         objPos headElement = foodBucket->getHeadElement();
+//         if (food.isPosEqual(&headElement)) {
+//             isValid = false;
+//         }
+
+//     } while (!isValid);
+
+//     foodBucket->insertTail(food);
+
+    for (int x = 0; x < 3; x++){
+
+        do {
+            isValid = true;
+
+            int xCoord = (rand() % (gameMechs.getBoardSizeX() - 2)) + 1;
+            int yCoord = (rand() % (gameMechs.getBoardSizeY() - 2)) + 1;
+
+            if (x == 2) {
+                food.setObjPos(xCoord, yCoord, '*'); // Update the food's position;
             }
-        }
 
-    } while (!isValid);
+            else {
+                food.setObjPos(xCoord, yCoord, 'o'); // Update the food's position
+            }
 
-    foodBucket->insertHead(food);
+            for (int i = 0; i< blockOff -> getSize(); i++){
 
-    do {
-        isValid = true;
+                objPos currElement = blockOff -> getElement(i);
 
-        int xCoord = (rand() % (gameMechs.getBoardSizeX() - 2)) + 1;
-        int yCoord = (rand() % (gameMechs.getBoardSizeY() - 2)) + 1;
+                if (food.isPosEqual(&currElement)) {
+                    isValid = false;
+                }
 
-        food.setObjPos(xCoord, yCoord, '*'); // Update the food's position
+            }
 
-        objPos headElement = foodBucket->getHeadElement();
-        if (food.isPosEqual(&headElement)) {
-            isValid = false;
-        }
+            for (int i = 0; i< foodBucket -> getSize(); i++){
 
-    } while (!isValid);
+                objPos currFoodElement = foodBucket->getElement(i);
 
-    foodBucket->insertTail(food);
+                if (food.isPosEqual(&currFoodElement)) {
+                    isValid = false;
+                }
+
+            }
+
+        } while (!isValid);
+
+        foodBucket->insertTail(food);
+
+    }
+
+
 }
 
 objPosArrayList* Food::getFoodPos() const
