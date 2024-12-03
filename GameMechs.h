@@ -23,27 +23,26 @@ class GameMechs
         objPos food;
 
     public:
-        GameMechs();
-        GameMechs(int boardX, int boardY);
-        ~GameMechs(); // is this one needed at all? Why or why not?
+        GameMechs(); //Defualt Constructor 
+        GameMechs(int boardX, int boardY); //COnstructor 
+        ~GameMechs(); // Destructor 
         
-        bool getExitFlagStatus() const; 
-        void setExitTrue();
-        bool getLoseFlagStatus() const;
-        void setLoseFlag();
+        bool getExitFlagStatus() const; //Getter Method
+        void setExitTrue(); //Setter method
+        bool getLoseFlagStatus() const; //Getter Method
+        void setLoseFlag(); //Setter method
 
-        char getInput() const;
-        void setInput(char this_input);
-        void clearInput();
+        char getInput() const; //Getter Method
+        void setInput(char this_input); //Setter method
+        void clearInput(); //Clear input method 
 
-        int getBoardSizeX() const;
-        int getBoardSizeY() const;
+        int getBoardSizeX() const; //Getter Method
+        int getBoardSizeY() const;//Getter Method
         
-        int getScore() const;
-        void incrementScore();
+        int getScore() const; //Getter Method
+        void incrementScore(); //Increment score method
         
-        // More methods should be added here
-        void collectAsyncInput();
+        void collectAsyncInput();//Collecting input method 
 };
 
 #endif

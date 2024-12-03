@@ -6,15 +6,15 @@
 class Food
 {
     private:
-        objPos food;
-        objPosArrayList* foodBucket;
+        objPos food;  
+        objPosArrayList* foodBucket;  //Food item array list 
 
     public: 
-        Food();
-        ~Food();
+        Food(); //COnstructor
+        ~Food(); //Destructor
 
-        void generateFood(objPosArrayList* blockOff);
-        objPosArrayList* getFoodPos() const;
+        void generateFood(objPosArrayList* blockOff); //Generate random food method
+        objPosArrayList* getFoodPos() const; //Get foodPos method 
 
 };
 
